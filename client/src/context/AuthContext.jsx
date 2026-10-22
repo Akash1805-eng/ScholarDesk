@@ -25,12 +25,18 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     const res = await api.post('/auth/login', credentials);
+    if (res.data?.token) {
+      try {
+        localStorage.setItem('auth_token', res.data.token);
+      } catch {}
+    }
     setUser(res.data.user);
     return res.data.user;
   };
 
   const logout = async () => {
     try { await api.post('/auth/logout'); } catch {}
+    try { localStorage.removeItem('auth_token'); } catch {}
     setUser(null);
   };
 

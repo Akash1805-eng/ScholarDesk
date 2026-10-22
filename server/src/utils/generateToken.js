@@ -31,7 +31,7 @@ function verifyToken(token) {
  */
 function getCookieOptions(maxAge) {
   const isProd = process.env.NODE_ENV === 'production';
-  const sameSite = (process.env.COOKIE_SAMESITE || 'lax').toLowerCase();
+  const sameSite = (process.env.COOKIE_SAMESITE || (isProd ? 'none' : 'lax')).toLowerCase();
   const secure = isProd || sameSite === 'none';
   const domain = (process.env.COOKIE_DOMAIN && process.env.COOKIE_DOMAIN !== 'localhost')
     ? process.env.COOKIE_DOMAIN

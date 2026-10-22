@@ -33,6 +33,13 @@ const isAllowedOrigin = (origin) => {
   if (!origin) return true;
   const normalized = origin.trim().replace(/\/$/, '');
   if (allowedOrigins.includes(normalized)) return true;
+  // Support wildcard pattern in allowedOrigins (e.g. https://*.vercel.app)
+  const matchesWildcard = allowedOrigins.some(pattern => {
+    if (!pattern.includes('*')) return false;
+    const regexPattern = '^' + pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$';
+    return new RegExp(regexPattern).test(normalized);
+  });
+  if (matchesWildcard) return true;
   // In development, allow any localhost or 127.0.0.1 port (e.g., 5173, 5174, etc.)
   if (process.env.NODE_ENV !== 'production') {
     if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(normalized)) {
@@ -80,7 +87,9 @@ app.get('/health', (req, res) => {
 // The /uploads directory is NOT publicly mounted.
 
 // ── API Routes ────────────────────────────────────────────────────────────────
+// Mount routes under /api (canonical) and / (fallback for clients omitting /api prefix)
 app.use('/api', routes);
+app.use('/', routes);
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => {
