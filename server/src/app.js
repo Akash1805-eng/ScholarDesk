@@ -73,7 +73,25 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan('dev'));
 }
 
-// ── Root Health Check ─────────────────────────────────────────────────────────
+// ── Root Status & Health Check ────────────────────────────────────────────────
+const rootStatusHandler = (req, res) => {
+  res.status(200).json({
+    success: true,
+    service: 'Scholarship Desk API',
+    status: 'running',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      auth: '/api/auth',
+      login: '/api/auth/login',
+    },
+    timestamp: new Date().toISOString(),
+  });
+};
+
+app.get('/', rootStatusHandler);
+app.get('/api', rootStatusHandler);
+
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',

@@ -36,7 +36,23 @@ describe('Route Resolution & API Prefix Verification', () => {
     mockStudentMasterFindOne.mockResolvedValue(null);
   });
 
-  describe('Health Check Routes', () => {
+  describe('Root and Health Check Routes', () => {
+    test('GET / returns 200 with service running status', async () => {
+      const res = await request(app).get('/');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.status).toBe('running');
+      expect(res.body.service).toBe('Scholarship Desk API');
+    });
+
+    test('GET /api returns 200 with service running status', async () => {
+      const res = await request(app).get('/api');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.status).toBe('running');
+      expect(res.body.service).toBe('Scholarship Desk API');
+    });
+
     test('GET /health returns 200 with service info', async () => {
       const res = await request(app).get('/health');
       expect(res.status).toBe(200);
