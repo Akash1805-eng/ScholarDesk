@@ -29,12 +29,20 @@ async function main() {
   await connectDB();
 
   const existing = await User.findOne({ email: ADMIN_EMAIL.toLowerCase().trim() });
+  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, BCRYPT_ROUNDS);
+
   if (existing) {
-    console.log(`Admin account already exists for: ${ADMIN_EMAIL}`);
+    existing.passwordHash = passwordHash;
+    existing.role = 'admin';
+    existing.isActive = true;
+    existing.emailVerified = true;
+    existing.verificationStatus = 'verified';
+    await existing.save();
+    console.log(`✔ Admin password updated for existing account: ${existing.email} (id: ${existing._id})`);
+    await mongoose.disconnect();
     process.exit(0);
   }
 
-  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, BCRYPT_ROUNDS);
   const admin = await User.create({
     email: ADMIN_EMAIL.toLowerCase().trim(),
     passwordHash,

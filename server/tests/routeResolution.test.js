@@ -361,5 +361,27 @@ describe('Route Resolution & API Prefix Verification', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.user.email).toBe('student@eec.srmrmp.edu.in');
     });
+
+    test('syncAdminAccount updates password for existing admin when env vars set', async () => {
+      const { syncAdminAccount } = require('../src/utils/seedAdmin');
+      process.env.ADMIN_EMAIL = 'admin@eec.srmrmp.edu.in';
+      process.env.ADMIN_PASSWORD = 'Admin@1234';
+
+      const existingAdmin = {
+        _id: '507f1f77bcf86cd799439099',
+        email: 'admin@eec.srmrmp.edu.in',
+        role: 'admin',
+        save: jest.fn().mockResolvedValue(true),
+      };
+
+      mockUserFindOne.mockReturnValue({
+        select: jest.fn().mockResolvedValue(existingAdmin),
+      });
+
+      await syncAdminAccount();
+      expect(existingAdmin.save).toHaveBeenCalled();
+      expect(existingAdmin.role).toBe('admin');
+      expect(existingAdmin.isActive).toBe(true);
+    });
   });
 });

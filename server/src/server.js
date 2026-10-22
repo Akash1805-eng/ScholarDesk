@@ -2,6 +2,7 @@
 require('dotenv').config();
 const app = require('./app');
 const connectDB = require('./config/database');
+const { syncAdminAccount } = require('./utils/seedAdmin');
 const { startExpiryJob, stopExpiryJob } = require('./jobs/documentExpiryJob');
 const mongoose = require('mongoose');
 
@@ -10,6 +11,7 @@ const PORT = process.env.PORT || 5000;
 async function start() {
   try {
     await connectDB();
+    await syncAdminAccount();
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`[server] Scholarship Desk API listening on 0.0.0.0:${PORT} (${process.env.NODE_ENV || 'development'})`);
     });
