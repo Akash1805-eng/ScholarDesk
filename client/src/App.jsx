@@ -77,8 +77,9 @@ export default function App() {
     <>
       <a href="#main-content" className="skip-link">Skip to main content</a>
       <Routes>
-        {/* Root redirect */}
+        {/* Root and Dashboard redirect */}
         <Route path="/" element={<HomeRedirect />} />
+        <Route path="/dashboard" element={<HomeRedirect />} />
 
         {/* Auth routes (public) */}
         <Route path="/login" element={<LoginPage />} />
