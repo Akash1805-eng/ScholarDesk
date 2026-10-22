@@ -43,7 +43,25 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/me')) {
+    const url = error.config?.url || '';
+    const isAuthRoute = url.includes('/auth/login') ||
+                        url.includes('/auth/register') ||
+                        url.includes('/auth/forgot-password') ||
+                        url.includes('/auth/verify-otp') ||
+                        url.includes('/auth/verify-reset-otp') ||
+                        url.includes('/auth/reset-password') ||
+                        url.includes('/auth/resend-otp') ||
+                        url.includes('/auth/me');
+
+    const isAuthPage = typeof window !== 'undefined' && (
+      window.location.pathname === '/login' ||
+      window.location.pathname === '/register' ||
+      window.location.pathname === '/verify-otp' ||
+      window.location.pathname === '/forgot-password' ||
+      window.location.pathname === '/reset-password'
+    );
+
+    if (error.response?.status === 401 && !isAuthRoute && !isAuthPage) {
       try {
         localStorage.removeItem('auth_token');
       } catch {}

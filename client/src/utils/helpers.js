@@ -94,5 +94,8 @@ export function daysUntil(date) {
  * Extract a user-friendly error message from an Axios error.
  */
 export function getErrorMessage(err) {
+  if (err?.code === 'ERR_NETWORK' || err?.message === 'Network Error') {
+    return 'Unable to reach backend server. If using Render free tier, the service may be spinning up (takes ~30-50s). Please wait a moment and try again.';
+  }
   return err?.response?.data?.message || err?.message || 'An unexpected error occurred.';
 }

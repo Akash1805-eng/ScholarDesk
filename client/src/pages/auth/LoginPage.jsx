@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { GraduationCap, ClipboardCheck, ShieldCheck, Mail, Lock, Eye, EyeOff } from 'lucide-react';
@@ -18,7 +18,7 @@ const ROLE_PLACEHOLDERS = {
 };
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user: currentUser } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ collegeEmail: '', password: '' });
   const [selectedRole, setSelectedRole] = useState('');
@@ -27,8 +27,20 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [roleError, setRoleError] = useState('');
 
+  // If already authenticated, redirect directly to role dashboard
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.role === 'admin') navigate('/admin', { replace: true });
+      else if (currentUser.role === 'verifier') navigate('/verifier', { replace: true });
+      else navigate('/student', { replace: true });
+    }
+  }, [currentUser, navigate]);
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setError('');
     setRoleError('');
 
@@ -37,14 +49,30 @@ export default function LoginPage() {
       return;
     }
 
+    const emailOrId = (form.collegeEmail || '').trim();
+    if (!emailOrId) {
+      setError('Please enter your college email or register number.');
+      return;
+    }
+
+    if (!form.password) {
+      setError('Please enter your password.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const user = await login({ ...form, selectedRole });
+      const user = await login({
+        identifier: emailOrId,
+        collegeEmail: emailOrId,
+        password: form.password,
+        selectedRole,
+      });
       toast.success('Welcome back!');
       // Route by authenticated role from server
-      if (user.role === 'admin') navigate('/admin');
-      else if (user.role === 'verifier') navigate('/verifier');
-      else navigate('/student');
+      if (user?.role === 'admin') navigate('/admin', { replace: true });
+      else if (user?.role === 'verifier') navigate('/verifier', { replace: true });
+      else navigate('/student', { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

@@ -330,8 +330,8 @@ exports.resendOtp = async (req, res, next) => {
 // ── Login ──────────────────────────────────────────────────────────────────────
 exports.login = async (req, res, next) => {
   try {
-    const { collegeEmail, email: directEmail, password, selectedRole } = req.body;
-    let input = normalizeEmail(collegeEmail || directEmail);
+    const { identifier, collegeEmail, email: directEmail, password, selectedRole } = req.body;
+    let input = normalizeEmail(identifier || collegeEmail || directEmail);
     const domain = (process.env.COLLEGE_EMAIL_DOMAIN || 'eec.srmrmp.edu.in').toLowerCase().trim();
 
     // If student types 12-digit register number directly in login, resolve to expected college email
